@@ -1,0 +1,10 @@
+extends layout
+
+block content
+    h1.not-found-err= err.statusCode
+    h2.not-found-text= err.message
+    p.not-found-text= err.description
+    br
+    p
+        a(class="home-btn", href="/") Home
+        

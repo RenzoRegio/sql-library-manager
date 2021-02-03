@@ -1,19 +1,13 @@
-extends layout
+extends ../layout
 
 block content
     div.books-header
         h1.books-title Library
         p
             a.books-button(href='/books/new') Create New Book
-        form.search-form
-            .search-container
-                div.search
-                    h3 Search
-                    div
-                        a(class="search-options", href="/books/search") Book
-                        a(class="search-options", href="/authors/search") Author
-                        a(class="search-options", href="/genres/search") Genre
-                        a(class="search-options", href="/year/search") Year
+        include books-search
+        include authors-search
+        include genres-search
             
     table
         thead
