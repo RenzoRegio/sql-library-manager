@@ -2,13 +2,12 @@ extends ../layout
 
 block content
     div.books-header
-        h1.books-title Library
-        p
-            a.books-button(href='/books/new') Create New Book
-        include books-search
-        include authors-search
-        include genres-search
-            
+        h1.books-title= title
+        .books-info
+            h3(class="total-books header-btns") Total Books: #{bookLength}
+            a(class="books-button header-btns",href='/books/new') Create New Book
+            a(class="search-home header-btns", href="/") HOME                            
+        include category-search   
     table
         thead
             tr
@@ -19,8 +18,8 @@ block content
         tbody
             each book in books
                 tr
-                    td.book
+                    td.book.search-book
                         a(href=`/books/${book.id}`)= book.title
-                    td.author= book.author
-                    td.genre= book.genre
-                    td.year= book.year
+                    td.author.search-author= book.author
+                    td.genre.search-genre= book.genre
+                    td.year.search-year= book.year

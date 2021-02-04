@@ -22,10 +22,61 @@ router.get("/", (req, res) => {
 router.get(
   "/books",
   asyncHandler(async (req, res) => {
-    const books = await Book.findAll();
-    res.render("index", { books, title: "Books" });
+    const next = 1;
+    const books = await Book.findAll({
+      offset: 0,
+      limit: 10,
+    });
+    const allBooks = await Book.findAll();
+    const bookLength = allBooks.length;
+    res.render("index", { books, next, title: "Books", bookLength });
   })
 );
+
+//next
+
+async function renderBooks(req, forward) {
+  let next = parseInt(req.params.page);
+  const allBooks = await Book.findAll();
+  let previous = next - 1;
+  if (!forward) {
+    next += 1;
+    previous = next - 1;
+  }
+  const bookLength = allBooks.length;
+  const offset = forward ? next * 10 : previous * 10;
+  const books = await Book.findAll({
+    limit: 10,
+    offset: offset,
+  });
+  return { bookLength, books, next, previous };
+}
+
+router.get("/books/next=:page", async (req, res) => {
+  const books = await renderBooks(req, (forward = true));
+  books.next += 1;
+  res.render("index", {
+    books: books.books,
+    next: books.next,
+    previous: books.previous,
+    bookLength: books.bookLength,
+  });
+});
+
+//prev
+
+router.get("/books/previous=:page", async (req, res) => {
+  const books = await renderBooks(req, (forward = false));
+  books.previous -= 1;
+  res.render("index", {
+    books: books.books,
+    previous: books.previous,
+    next: books.next,
+    bookLength: books.bookLength,
+  });
+});
+
+//
 
 router.get("/books/new", (req, res) => {
   res.render("new-book", { title: "New Book" });
@@ -56,24 +107,36 @@ router.post(
 
 //SEARCH!
 
-router.get("/books/search", async (req, res) => {
-  const books = await Book.findAll();
-  const book = true;
-  res.render("search/search-base", { books, book });
+async function searchCategory(element, res, order) {
+  const books = await Book.findAll({ order: order });
+  const bookLength = books.length;
+  return res.render("search/search-base", {
+    books,
+    element,
+    title: `Search by ${element}`,
+    bookLength,
+  });
+}
+
+router.get("/books/search", (req, res) => {
+  const order = [["title", "ASC"]];
+  searchCategory("book", res, order);
 });
 
 router.get("/authors/search", async (req, res) => {
-  const books = await Book.findAll();
-  const author = true;
-  res.render("search/search-base", { books, author });
+  const order = [["author", "ASC"]];
+  searchCategory("author", res, order);
 });
 
 router.get("/genres/search", async (req, res) => {
-  const books = await Book.findAll();
-  const genre = true;
-  res.render("search/search-base", { books, genre });
+  const order = [["genre", "ASC"]];
+  searchCategory("genre", res, order);
 });
 
+router.get("/years/search", async (req, res) => {
+  const order = [["year", "DESC"]];
+  searchCategory("year", res, order);
+});
 //
 
 router.get(
