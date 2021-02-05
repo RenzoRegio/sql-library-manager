@@ -11,7 +11,7 @@ block content
                 div.search
                     h3 Search
                     div
-                        a(class="search-options", href="/books/search") Book
+                        a(class="search-options", href="/titles/search") Book
                         a(class="search-options", href="/authors/search") Author
                         a(class="search-options", href="/genres/search") Genre
                         a(class="search-options", href="/years/search") Year
@@ -19,6 +19,7 @@ block content
     table
         thead
             tr
+                th ID
                 th Title
                 th Author
                 th Genre
@@ -26,6 +27,7 @@ block content
         tbody
             each book in books
                 tr
+                    td.id= book.id
                     td.book
                         a(href=`/books/${book.id}`)= book.title
                     td.author= book.author
@@ -33,5 +35,7 @@ block content
                     td.year= book.year
 
     .pagination
-        a(class="prev-btn", href=`/books/previous=${previous}`) Previous
-        a(class="next-btn", href=`/books/next=${next}`) Next
+        if(displayPrevBtn)
+            a(class="prev-btn", href=`/books/previous=${previous}`) Previous
+        if(displayNextBtn)
+            a(class="next-btn", href=`/books/next=${next}`) Next
