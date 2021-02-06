@@ -46,8 +46,8 @@ router.get(
 
 /**
  * Returns an object containing the variables that are needed to render the next or previous page
- * @param {obj} req - Request object from the router
- * @param {bool} forward - Boolean value. If true, then it means that we are initiating the next page else it means hat we are initiating the previous page.
+ * @param {Object} req - Request object from the router
+ * @param {Bool} forward - Boolean value. If forward is true then we will provide the variables for the next page, else the next and previous variables will be altered for the previous page.
  */
 
 async function renderBooks(req, forward) {
@@ -70,7 +70,7 @@ async function renderBooks(req, forward) {
 
 /**
  * Determines if the page should be rendered - Executed in the /next and /previous routes.
- * @param {obj} req - Request object from the router
+ * @param {Object} req - Request object from the router
  */
 
 async function renderPage(req) {
@@ -79,13 +79,13 @@ async function renderPage(req) {
   const pageNumber = +req.params.page;
   let bool;
   if (pageNumber > total) {
-    //If the page parameter is greater than the total number of pages then it will return an error and a false boolean to the route
+    //If the page parameter is greater than the total number of pages then it will return an error and a false boolean to the route.
     const err = new Error("Page Not Found");
     err.statusCode = 404;
     bool = false;
     return { bool, err, total };
   } else {
-    //If the page parameter is not greater than the total number of pages (meaning that it is the correct number within our library's known pages) then it will return true
+    //If the page parameter is not greater than the total number of pages (meaning that it is the correct number within our library's known pages) then it will return true.
     bool = true;
     return { bool, total };
   }
@@ -93,12 +93,11 @@ async function renderPage(req) {
 
 /**
  * Determines if the navigation buttons for the current page should be displayed or not
- * @param {object} req - Request object from the router
- * @param {object} page - Page object retrieved from the renderPage function that contains the total variable which is accessed in the function.
+ * @param {Object} req - Request object from the router.
+ * @param {Object} page - Page object retrieved from the renderPage function that contains the total variable which is accessed in the function.
  */
 
 async function displayNavigation(req, page) {
-  console.log(typeof page);
   const books = await Book.findAll();
   const currentURL = +req.params.page;
   let totalPages = books.length % 10 ? page.total : page.total - 1;
@@ -112,7 +111,7 @@ async function displayNavigation(req, page) {
   return { next, previous };
 }
 
-/* GET next page - renders the next page containing the next 10 books (following the current 10 books on the page) from the database. */
+/* GET next page - renders the next page containing the next 10 books (following the current 10 books on the current page prior to executing the next route) from the database. */
 router.get(
   "/books/next=:page",
   asyncHandler(async (req, res, next) => {
@@ -136,7 +135,7 @@ router.get(
   })
 );
 
-/* GET previous page - renders the previous page containing the previous 10 books (from the current 10 books on the page) from the database. */
+/* GET previous page - renders the previous page containing the previous 10 books (from the current 10 books on the page prior to executing the previous route) from the database. */
 router.get(
   "/books/previous=:page",
   asyncHandler(async (req, res, next) => {
@@ -164,7 +163,11 @@ router.get(
 router.get(
   "/books/new",
   asyncHandler((req, res) => {
-    res.render("new-book", { title: "New Book" });
+    res.render("new-book", {
+      book: {},
+      title: "New Book",
+      btnValue: "Create Book",
+    });
   })
 );
 
@@ -174,7 +177,7 @@ router.post(
   asyncHandler(async (req, res, next) => {
     let book;
     try {
-      await Book.create(req.body);
+      book = await Book.create(req.body);
       res.redirect("/books");
     } catch (error) {
       if (error.name === "SequelizeValidationError") {
@@ -183,6 +186,7 @@ router.post(
           book,
           errors: error.errors,
           title: "New Book",
+          btnValue: "Create Book",
         });
       } else {
         next(error);
@@ -195,8 +199,19 @@ router.post(
 router.get(
   "/books/:id",
   asyncHandler(async (req, res) => {
-    const book = await Book.findByPk(req.params.id);
-    res.render("update-book", { book, title: book.title });
+    let book = await Book.findByPk(req.params.id);
+    if (book) {
+      res.render("update-book", {
+        id: req.params.id,
+        book,
+        title: "PRAC",
+        btnValue: "Update Book",
+      });
+    } else {
+      const error = new Error();
+      err.statusCode = 404;
+      throw error;
+    }
   })
 );
 
@@ -204,9 +219,29 @@ router.get(
 router.post(
   "/books/:id",
   asyncHandler(async (req, res) => {
-    const book = await Book.findByPk(req.params.id);
-    await book.update(req.body);
-    res.redirect("/");
+    let book;
+    try {
+      book = await Book.findByPk(req.params.id);
+      if (book) {
+        await book.update(req.body);
+        res.redirect("/");
+      } else {
+        throw error;
+      }
+    } catch (error) {
+      if (error.name === "SequelizeValidationError") {
+        book = await Book.build(req.body);
+        res.render("update-book", {
+          id: req.params.id,
+          book,
+          errors: error.errors,
+          title: book.title,
+          btnValue: "Update Book",
+        });
+      } else {
+        throw error;
+      }
+    }
   })
 );
 
@@ -228,7 +263,7 @@ router.post(
  */
 
 async function searchCategory(element, res, order) {
-  const books = await Book.findAll({ order: order });
+  const books = await Book.findAll({ order });
   const bookLength = books.length;
   return res.render("search/search-base", {
     books,

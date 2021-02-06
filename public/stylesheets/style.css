@@ -16,22 +16,13 @@ a {
   transition: 0.4s;
 }
 input[type="submit"] {
-  color: black;
-  font-family: "Lucida Grande", Helvetica, Arial, sans-serif;
   padding: 15px;
   font-size: 14px;
-  border-radius: 2px;
   cursor: pointer;
-}
-
-input[type="submit"] {
+  outline: none;
   margin-left: 140px;
   transition: 0.4s;
   width: 320px;
-}
-
-input[type="submit"] {
-  border: 0;
 }
 
 p {
@@ -74,7 +65,6 @@ input {
   font-family: "Lucida Grande", Helvetica, Arial, sans-serif;
   font-size: 14px;
   border-radius: 2px;
-  border-color: #e7e7e7;
   transition: 0.4s;
 }
 
@@ -133,25 +123,20 @@ form {
   flex-direction: column;
 }
 
-.del-btn[value="Delete Book"] {
+.del-btn[value] {
   background-color: #ff385c;
-  border-radius: 20px;
+  border-radius: 10px;
   color: white;
   font-weight: 700;
+  border: 2px solid white;
 }
 
-.update-btn[value="Update Book"] {
+.create-btn[value] {
   color: white;
-  border-radius: 20px;
+  border-radius: 10px;
   background-color: teal;
   font-weight: 700;
-}
-
-.create-btn[value="Create New Book"] {
-  color: white;
-  border-radius: 20px;
-  background-color: teal;
-  font-weight: 700;
+  border: 2px solid white;
 }
 
 .cancel-btn {

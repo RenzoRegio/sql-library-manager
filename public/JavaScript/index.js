@@ -82,3 +82,25 @@ for (let i = 0; i < bookList.length; i++) {
     contentStyle(yearList, i);
   }
 }
+
+/**
+ * This section is dedicated for handling the form's validation errors
+ * If the error is displayed, a red outline/border will be added to the input's element.
+ */
+
+const errContainer = document.querySelector("ul.error");
+
+if (errContainer) {
+  const authorInput = document.querySelector("#author");
+  const titleInput = document.querySelector("#title");
+  for (let i = 0; i < errContainer.children.length; i++) {
+    const errorMessage = errContainer.children[i].textContent;
+    if (errorMessage.includes("title")) {
+      titleInput.style.border = "2px solid red";
+      titleInput.style.boxShadow = "1px 1px 1px red";
+    } else if (errorMessage.includes("author")) {
+      authorInput.style.border = "2px solid red";
+      authorInput.style.boxShadow = "1px 1px 1px red";
+    }
+  }
+}
